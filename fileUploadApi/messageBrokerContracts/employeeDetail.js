@@ -1,3 +1,4 @@
+// Employee detail object for RabbitMQ message
 function EmployeeDetail(employeeName, phone, email, company) {
     this.Name = employeeName;
     this.Phone = phone;

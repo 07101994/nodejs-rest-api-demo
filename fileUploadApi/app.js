@@ -5,7 +5,6 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
 
-
 const fileRoutes = require('./routes/fileRoutes');
 const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');

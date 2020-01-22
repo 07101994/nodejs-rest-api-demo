@@ -1,10 +1,11 @@
 var amqp = require("amqplib/callback_api");
-const CONN_URL = "amqp://localhost";
+const config = require("../config/config");
 var amqpConn = null;
 var publisherChannel = null;
 
+// Start function to start RabbitMQ connection
 exports.start = function start() {
-  amqp.connect(CONN_URL + "?heartbeat=60", function(connectionError, conn) {
+  amqp.connect(config.rabbitMQUrl + "?heartbeat=60", function(connectionError, conn) {
     if (connectionError) {
       console.error("[AMQP]", connectionError.message);
       return setTimeout(start, 1000);
@@ -26,23 +27,13 @@ exports.start = function start() {
   });
 };
 
+// When RabbitMQ connection is successfully created then start the dependent tasks
 function whenConnected() {
-  startPublisher();
+  initializePublisherChannel();
 }
 
-process.on("exit", code => {
-  ch.close();
-  console.log(`Closing rabbitmq channel`);
-});
-
-function closeOnErr(err) {
-  if (!err) return false;
-  console.error("[AMQP] error", err);
-  amqpConn.close();
-  return true;
-}
-
-function startPublisher() {
+// Initialize RabbitMQ Publisher channel
+function initializePublisherChannel() {
   amqpConn.createConfirmChannel(function(err, ch) {
     if (closeOnErr(err)) return;
     ch.on("error", function(err) {
@@ -56,18 +47,29 @@ function startPublisher() {
   });
 }
 
+// Publish message to RabbitMQ queue
 exports.publishToQueue = async (queueName, data) => {
   try {
     publisherChannel.assertQueue(queueName, {
       durable: true
     });
+    // Message details is passed as a JSON in RabbitMQ
     publisherChannel.sendToQueue(queueName, Buffer.from(JSON.stringify(data)));
   } catch (error) {
     console.log(error);
   }
 };
 
+// On RabbitMQ connection closed
 process.on("exit", code => {
   ch.close();
   console.log(`Closing rabbitmq channel`);
 });
+
+// Clone RabbitMQ connection on error
+function closeOnErr(err) {
+  if (!err) return false;
+  console.error("[AMQP] error", err);
+  amqpConn.close();
+  return true;
+}

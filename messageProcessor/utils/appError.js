@@ -1,3 +1,8 @@
+/* 
+    App Error class for Api error response
+    This contract is send in response of the API
+    if the request is not processed successfully
+*/
 class AppError extends Error {
     constructor(statusCode, status, message) {
         super(message);

@@ -1,7 +1,8 @@
 const employeeModel = require("../models/employee.model");
 
-//Simple version, without validation or sanitation
-exports.createEmployee = function(employeeDetail) {
+// Simple version, without validation or sanitation
+// Save the employee details in the database
+exports.saveEmployee = function(employeeDetail) {
   let employee = new employeeModel({
     name: employeeDetail.Name,
     phone: employeeDetail.Phone,

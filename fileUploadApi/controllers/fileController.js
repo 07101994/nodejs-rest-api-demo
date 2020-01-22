@@ -1,8 +1,11 @@
 var multer = require("multer");
-const employee = require('../services/employeeService')
+const employeeService = require('../services/employeeService')
+const config = require('../config/config');
+
+// Defined storage destination and filename for the uploaded file
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "./public/files");
+    cb(null, config.fileUploadDestinationFilePath);
   },
   filename: (req, file, cb) => {
     console.log(file);
@@ -11,7 +14,9 @@ var storage = multer.diskStorage({
     cb(null, "employeeData." + filetype);
   }
 });
-exports.upload = multer({
+
+// Upload method to validate the CSV file based on file type and upload the file
+exports.uploadFile = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype !== "text/csv") {
@@ -23,14 +28,15 @@ exports.upload = multer({
   }
 });
 
-exports.uploadFile = async (req, res, next) => {
+// Upload File Callback to queue employee details
+exports.uploadFileCallback = async (req, res, next) => {
   try {
     console.log(req.file);
     if (!req.file) {
       res.status(500);
       return next(err);
     }
-    await employee.saveEmployeeDetails(req.file.path);
+    await employeeService.queueEmployeeDetails(req.file.path);
     res.json({
       message: "File processing started"
     });

@@ -1,3 +1,4 @@
+// App error class for error API response
 class AppError extends Error {
     constructor(statusCode, status, message) {
         super(message);

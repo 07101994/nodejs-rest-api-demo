@@ -1,3 +1,4 @@
+// Employee detail RabbitMQ contract
 function EmployeeDetail(employeeName, phone, email, company) {
     this.Name = employeeName;
     this.Phone = phone;

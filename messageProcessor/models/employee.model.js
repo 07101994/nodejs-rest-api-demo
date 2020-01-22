@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// Employee model for MongoDB
 let EmployeeSchema = new Schema({
     name: {type: String, required: true, max: 100},
     phone: {type: String, required: true, max: 15},

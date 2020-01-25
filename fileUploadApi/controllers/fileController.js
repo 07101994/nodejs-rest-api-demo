@@ -1,6 +1,7 @@
 var multer = require("multer");
 const employeeService = require('../services/employeeService')
 const config = require('../config/config');
+var AppError = require('../utils/appError');
 
 // Defined storage destination and filename for the uploaded file
 var storage = multer.diskStorage({
@@ -21,7 +22,7 @@ exports.uploadFile = multer({
   fileFilter: (req, file, cb) => {
     if (file.mimetype !== "text/csv") {
       cb(null, false);
-      return cb(new Error("Only .csv format allowed!"));
+      return cb(new AppError(400, "BAD_REQUEST", "Only .csv format allowed!"));
     } else {
       cb(null, true);
     }

@@ -1,4 +1,5 @@
 var employeeModel = require("../models/employee.model");
+var AppError = require("../utils/appError");
 
 function getConditionByCompanyAndEmail(company, email) {
   var condition = {};
@@ -12,27 +13,41 @@ function getConditionByCompanyAndEmail(company, email) {
   return condition;
 }
 
-function getQueryByPageNoAndSize(pageNo, size) {
+function getQueryOptions(pageNo, size, sortBy, sortDirection) {
   var query = {};
   query.skip = size * (pageNo - 1);
   query.limit = size;
+  query.sort = getSortByAndDirection(sortBy, sortDirection);
   return query;
 }
 
+function getSortByAndDirection(sortBy, sortDirection){
+  var sort = {};
+  // We can validate the sort by and sort direction before using it
+  if(sortDirection && sortDirection === "asc"){
+    sort[sortBy] = 1;
+  }
+  else if(sortDirection && sortDirection === "desc"){
+    sort[sortBy] = -1;
+  }
+  return sort;
+}
+
 // Get employees function
-exports.getEmployees = function(pageNo, size, company, email) {
-  var condition = getConditionByCompanyAndEmail(company, email);
-  var query = getQueryByPageNoAndSize(pageNo, size);
+exports.getEmployees = function(filterParams) {
+  var queryConditions = getConditionByCompanyAndEmail(filterParams.company, filterParams.email);
+  var queryOptions = getQueryOptions(filterParams.pageNo, filterParams.size,filterParams.sortBy, filterParams.sortDirection);
+  
   // Find employees with filtering and pagination
   var getEmployeesPromise = employeeModel.find(
-    condition,
+    queryConditions,
     { _id: 0, __v: 0 },
-    query,
+    queryOptions,
     function(err, employees) {
       // Mongo command to fetch all data from collection.
       if (err) {
         console.error(err);
-        throw new Error("Internal server error");
+        throw new AppError(500, "INTERNAL_SERVER_ERROR", "Internal server error");
       } else {
         return employees;
       }
@@ -49,7 +64,7 @@ exports.getTotalEmployeesCount = function(company, email) {
   ) {
     if (err) {
       console.error(err);
-      throw new Error("Internal server error");
+      throw new AppError(500, "INTERNAL_SERVER_ERROR", "Internal server error");
     } else {
       return employeesCount;
     }

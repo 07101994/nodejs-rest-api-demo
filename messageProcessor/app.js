@@ -28,9 +28,9 @@ app.use(xss());
 // Prevent parameter pollution
 app.use(hpp());
 
-app.get('/echo', (req, res) => res.json({'message':'This is an echo API'}))
+app.get('/echo', (req, res) => res.json({'message':'This is an echo API'}));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 // handle undefined Routes
 app.use('*', (req, res, next) => {
